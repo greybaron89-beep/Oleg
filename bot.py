@@ -894,10 +894,26 @@ async def srch_proc(msg: types.Message, state: FSMContext):
     for u_id, un, r, d, c in rows: t += f"👤 @{un} (ID: `{u_id}`)\n🎮 Roblox: `{r}`\n💬 Discord: `{d}`\n💰 Монет: **{round(c or 0.0, 2)}**\n---\n"
     await msg.answer(t, parse_mode="Markdown", reply_markup=kb)
 
+import os
+from aiohttp import web
+
+async def handle(request):
+    return web.Response(text="Bot is running!")
+
 async def main():
     print("=============================")
     print("🤖 Бот Trident Mops запущен!")
     print("=============================")
+    
+    # Заглушка порта для хостинга Render
+    app = web.Application()
+    app.router.add_get("/", handle)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    port = int(os.environ.get("PORT", 10000))
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
